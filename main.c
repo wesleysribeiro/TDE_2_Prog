@@ -30,6 +30,22 @@
 
 FILE *fLog;
 
+/* 
+ *	Codigo n funfa no linux corretamente,
+ *	Abaixo um pedaco de portabilidade
+ *	Mude novamente para fflush(stdin) no windows
+ */
+
+void clean_stdin(void) {
+    
+    int c;
+    
+    do {
+        c = getchar();
+    } while (c != '\n' && c != EOF);
+
+}
+
 float preLog[MAGIA_NEGRA];
 
 int abreLog() {
@@ -45,36 +61,6 @@ int abreLog() {
 	    return 1; // Foi possivel criar
 }
 
-
-/* ZONA, ESCLARECER*/
-
-/*
-int novaEntradaLog(int operacao, float *x, float *y, float *z,  float resultado) {
-	
-    int traw, i;
-    int 
-    abreLog();
-    
-    abreLog.operation = operation;
-    abreLog.result = resultado;
-    printf("a.result = %f\n", a.result);
-    
-    for(i = 0; i<3; i++) {
-        a.x[i] = x[i];
-        a.y[i] = y[i];
-        a.z[i] = z[i];
-    }
-    
-    traw = time(NULL);
-    a.timeraw = traw;
-    
-    fseek(fLog, 0, SEEK_END);
-    fwrite(&a, sizeof(a), 1, fLog);
-    fflush(fLog);
-    
-    return 1;
-}
-/**/
 
 int novaEntrada(int argc, float *argv){
 	
@@ -128,7 +114,7 @@ void menuProdutos() {
            "Outro -  Retonar ao menu principal\n"
            "Digite o numero correspondente a opcao desejada: ");
 
-    scanf(" %1d", &auxMenu);
+    scanf(" %1d\n", &auxMenu);
 	
 	preLog[1] = auxMenu;
 	
@@ -215,58 +201,110 @@ void menuDistancias() {
            "Outro -  Retornar ao menu principal\n"
            "Informe o numero correspondente a opcao desejada: ");
     
-	fflush(stdin);    
+	clean_stdin();
+
     switch(getchar()-48) {
 	
 	    case DIST_DOIS_PONTOS:
+	        preLog[1] = DIST_DOIS_PONTOS;
+	        
 	        printf("Informe as coordenadas (x,y,z) do primeiro ponto: ");
 	        scanf("%f%f%f", &x[0], &y[0], &z[0]);
-	
+			preLog[2] = *x; 
+        	preLog[3] = *y;
+        	preLog[4] = *z;
+
 	        printf("Informe as coordenads (x,y,z) do segundo ponto: ");
 	        scanf("%f%f%f", &x[1], &y[1], &z[1]);
-	
+		    preLog[5] = *(x+1); 
+        	preLog[6] = *(y+1);
+        	preLog[7] = *(z+1);
+
 	        resultado = dist_pontos(x, y, z);
+			preLog[8] = resultado;
+			novaEntrada(9, preLog);
+
+			printf("A distancia entre o ponto e o ponto eh: %f\n", resultado);
 	
 	        break;
 	
 	    case DIST_PONTO_RETA:
 	        printf("Informe as coordenadas (x, y, z) do vetor diretor: ");
 	        scanf("%f%f%f", &x[0], &y[0], &z[0]);
-	
+			preLog[2] = *x; 
+        	preLog[3] = *y;
+        	preLog[4] = *z;
+
 	        printf("Informe as coordenadas (x,y,z) do ponto desejado: ");
 	        scanf("%f%f%f", &x[1], &y[1], &z[1]);
-	
+		    preLog[5] = *(x+1); 
+        	preLog[6] = *(y+1);
+        	preLog[7] = *(z+1);
+								
 	        printf("Informe as coordenads (x,y,z) de um ponto pertencente a reta: ");
 	        scanf("%f%f%f", &x[2], &y[2], &z[2]);
-	
-	        printf("A distancia entre o ponto e a reta eh: %f\n", dist_ponto_reta(x, y, z));
+		    preLog[8] = *(x+2); 
+        	preLog[9] = *(y+2);
+        	preLog[10] = *(z+2);
+
+			resultado = dist_ponto_reta(x, y, z);
+			preLog[11] = resultado;
+			novaEntrada(12, preLog);
+
+	        printf("A distancia entre o ponto e a reta eh: %f\n", resultado);
 	
 	        break;
 	
 	    case DIST_DUAS_RETAS:
 	        printf("Informe as coordenadas (x, y, z) do vetor diretor da reta r: ");
 	        scanf("%f%f%f", &x[0], &y[0], &z[0]);
-	
+			preLog[2] = *x; 
+        	preLog[3] = *y;
+        	preLog[4] = *z;
 	        printf("Informe as coordenadas (x, y, z) do vetor diretor da reta s: ");
 	        scanf("%f%f%f", &x[1], &y[1], &z[1]);
-	
+		    preLog[5] = *(x+1); 
+        	preLog[6] = *(y+1);
+        	preLog[7] = *(z+1);
+								
 	        if (x[0]/x[1] == y[0]/y[1] && y[0]/y[1] == z[0]/z[1]) {
 	            printf("Informe as coordenadas (x,y,z) do ponto  a reta s: ");
 	            scanf("%f%f%f", &x[1], &y[1], &z[1]);
-	
+			    preLog[8] = *(x+2); 
+    	    	preLog[9] = *(y+2);
+        		preLog[10] = *(z+2);
+								
 	            printf("Informe as coordenads (x,y,z) de um ponto  a reta r: ");
 	            scanf("%f%f%f", &x[2], &y[2], &z[2]);
-	
-	            printf("A distancia entre as reta eh: %f\n", dist_retas(x, y, z));
+			    preLog[11] = *(x+3); 
+	        	preLog[12] = *(y+3);
+    	    	preLog[13] = *(z+3);
+								
+				resultado = dist_retas(x, y, z);
+				preLog[14] = resultado;
+				novaEntrada(15, preLog);
+
+	            printf("A distancia entre as reta eh: %f\n", resultado);
 	
 	        } else {
 	            printf("Informe as coordenadas (x, y, z) de um ponto da reta r: ");
 	            scanf("%f%f%f", &x[2], &y[2], &z[2]);
-	
+				preLog[8] = *(x+2); 
+    	    	preLog[9] = *(y+2);
+        		preLog[10] = *(z+2);
+
 	            printf("Informe as coordenadas (x, y, z) de um ponto da reta s: ");
 	            scanf("%f%f%f", &x[3], &y[3], &z[3]);
-	
-	            printf("A distancia entre as duas retas eh: %f\n", dist_retas_reversas(x, y, z));
+				preLog[11] = *(x+3); 
+	        	preLog[12] = *(y+3);
+    	    	preLog[13] = *(z+3);
+
+				resultado = dist_retas_reversas(x, y, z);
+				preLog[14] = resultado;
+				novaEntrada(15, preLog);
+
+
+	            printf("A distancia entre as duas retas eh: %f\n", resultado);
 	
 	        }
 	        
@@ -275,22 +313,43 @@ void menuDistancias() {
 	    case DIST_RETA_PLANO:
 	        printf("Digite as coordenadas (x, y, z) do vetor diretor do plano e o termo 'd': ");
 	        scanf("%f%f%f%f", &x[0], &y[0], &z[0], &d);
-	
+			preLog[2] = *x; 
+        	preLog[3] = *y;
+        	preLog[4] = *z;
+
 	        printf("Informe um ponto da reta (x, y, z): ");
 	        scanf("%f%f%f", &x[1], &y[1], &z[1]);
-	
-	        printf("A distancia entre a reta e o plano eh: %f\n", dist_reta_plano(x, y, z, d));
+			preLog[5] = *(x+1); 
+        	preLog[6] = *(y+1);
+        	preLog[7] = *(z+1);
+
+			resultado = dist_reta_plano(x, y, z, d);
+			preLog[8] = resultado;
+			novaEntrada(9, preLog);
+
+	        printf("A distancia entre a reta e o plano eh: %f\n", resultado);
 	
 	        break;
 	
 	    case DIST_PONTO_PLANO:
 	        printf("Digite as coordenadas (x, y, z) do vetor diretor do plano e o termo 'd': ");
 	        scanf("%f%f%f%f", &x[0], &y[0], &z[0], &d);
-	
+			preLog[2] = *x; 
+        	preLog[3] = *y;
+        	preLog[4] = *z;
+        	preLog[5] = *d;
+
 	        printf("Digite as coordenadas (x, y, z) do ponto: ");
 	        scanf("%f%f%f", &x[1], &y[1], &z[1]);
-	
-	        printf("A distancia entre o ponto e o plano eh: %f\n", dist_ponto_plano(x, y, z, d));
+			preLog[6] = *(x+1); 
+        	preLog[7] = *(y+1);
+        	preLog[8] = *(z+1);
+
+        	resultado = dist_ponto_plano(x, y, z, d);
+        	preLog[9] = resultado;
+        	novaEntrada(10, preLog);
+
+	        printf("A distancia entre o ponto e o plano eh: %f\n", resultado);
 	
 	        break;
 	        
@@ -307,7 +366,7 @@ int main(int argc, char *argv[]) {
                "3 - \t Mostrar log\n"
                "Outro -  Sair do programa\n"
                "Digite o numero correspondente a opcao desejada: ");
-        fflush(stdin);
+        clean_stdin();
         switch (getchar()-48) {
         	
 	        case PRODUTOS:
@@ -326,7 +385,7 @@ int main(int argc, char *argv[]) {
 	    }
 
         printf("Deseja continuar? (1 - Sim) (Outro - Nao)\n");
-        fflush(stdin);
+        clean_stdin();
         if (getchar() != '1')
             return 0;
 

@@ -26,44 +26,37 @@
 #define DIST_DUAS_RETAS 3
 #define DIST_RETA_PLANO 4
 #define DIST_PONTO_PLANO 5
+#define MAGIA_NEGRA 32
 
 FILE *fLog;
 
-typedef struct {
-    float x[5], y[5], z[5];
-    float result;
-    time_t timeraw;
+float preLog[MAGIA_NEGRA];
 
-} LOG;
+int abreLog() {
+	
+    fLog = fopen("historico.log", "w+t");
 
-/* Renomear para criarArquivoLog(), q tal? */
-int Create_Log() {
-
-    /* renomear log.txt -> historico.log, q tal? */
-    fLog = fopen("log.txt", "r+b");
+    if(fLog == NULL)	/* Não foi possivel ler ou o arquivo não existe */
+        fLog = fopen("historico.log", "w+t");
 
     if(fLog == NULL)
-        fLog = fopen("log.txt", "w+b");
-
-    if(fLog == NULL)
-        return 0;
-    else {
-        /* SUGESTÃO
-        fclose(fLog);
-        */
-        return 1; // Foi possivel criar
-    }
+        return 0; // Não foi possível criar o arquivo
+    else 
+	    return 1; // Foi possivel criar
 }
 
 
 /* ZONA, ESCLARECER*/
-int New_Log_Entry(float *x, float *y, float *z, float resultado) {
+
+/*
+int novaEntradaLog(int operacao, float *x, float *y, float *z,  float resultado) {
 	
     int traw, i;
+    int 
+    abreLog();
     
-    Create_Log();    
-    LOG a;
-    a.result = resultado;
+    abreLog.operation = operation;
+    abreLog.result = resultado;
     printf("a.result = %f\n", a.result);
     
     for(i = 0; i<3; i++) {
@@ -81,28 +74,50 @@ int New_Log_Entry(float *x, float *y, float *z, float resultado) {
     
     return 1;
 }
+/**/
+
+int novaEntrada(int argc, float *argv){
+	
+	int i;
+	
+	if(!abreLog())	
+		return 0;
+	
+	fprintf(fLog, "%ld;",time(NULL));	
+	fprintf(fLog, "%d;",argc);		
+	
+	for (i = 0 ; i < argc; i++){
+		fprintf(fLog, "%f;",*(argv+i));	
+		//printf(" LOG> %f \n",*(argv+i));
+	}
+	
+	printf("\n <LOG OK> \n");
+	
+	fflush(fLog);	
+	return 1;
+
+}
 
 /* TODO
 int Remove_Log() {
 }
 /**/
 
+/*
 void Show_Log() {
-
-    Create_Log();    
+	abreLog();
     LOG a;
-    fseek(fLog, 0, SEEK_SET);  
-	  
+    fseek(fLog, 0, SEEK_SET); 
     while(fread(&a, sizeof(a), 1, fLog) == 1) {    	
         puts("---------------------");
         printf("%s", ctime(&a.timeraw));
+        printf("Operacao: %s\n", a.operation == 1? "Produto Escalar" : "Sei la viu");
         printf("Resultado: %f\n", a.result);        
     }
-
 }
-
+/**/
 void menuProdutos() {
-
+	
     int auxMenu = 0;
     float resultado = 0;
     float *x, *y, *z;
@@ -114,47 +129,67 @@ void menuProdutos() {
            "Digite o numero correspondente a opcao desejada: ");
 
     scanf(" %1d", &auxMenu);
-
-    if (auxMenu >= PRODUTO_ESCALAR && auxMenu < PRODUTO_MISTO) {
-        /* Evita repetição de printf e scanf em cada case */
+	
+	preLog[1] = auxMenu;
+	
+    if (auxMenu >= PRODUTO_ESCALAR && auxMenu <= PRODUTO_MISTO) {
+        /* Evita repeti??o de printf e scanf em cada case */
         x = calloc(2, sizeof(float));
         y = calloc(2, sizeof(float));
         z = calloc(2, sizeof(float));
 
         printf("Digite as coordenadas (x, y, z) do primeiro vetor: ");
-        scanf("%f%f%f", x, y, z);
+        scanf("%f%f%f", x, y, z);        
+        preLog[2] = *x; 
+        preLog[3] = *y;
+        preLog[4] = *z;
+        
 
         printf("Digite as coordenadas (x, y, z) do segundo vetor: ");
         scanf("%f%f%f", x+1, y+1, z+1);
-
+		preLog[5] = *(x+1); 
+        preLog[6] = *(y+1);
+        preLog[7] = *(z+1);
         /* O Produto Misto Necessita de 3 vetores para realizar os calculos */
         if (auxMenu == PRODUTO_MISTO) {
-            x = realloc(x, 3 * sizeof(float));
+            			
+			x = realloc(x, 3 * sizeof(float));
             y = realloc(y, 3 * sizeof(float));
             z = realloc(z, 3 * sizeof(float));
-
-            printf("Digite as coordenadas (x, y ,z) do terceiro vetor: ");
+                        
+			printf("Digite as coordenadas (x, y ,z) do terceiro vetor: ");
             scanf("%f%f%f", x+2, y+2, z+2);
+            preLog[8] = *(x+2); 
+        	preLog[9] = *(y+2);
+        	preLog[10] = *(z+2);
 
         }
 
     }
-
+	
     switch (auxMenu) {
 
 	    case PRODUTO_ESCALAR:
 	        resultado = prod_escalar(x, y, z);
+	        preLog[8] = resultado;
 	        printf("Produto escalar = %.9f\n", resultado);
-	        New_Log_Entry(x, y, z, resultado);
+			novaEntrada(9, preLog);
 	        break;
 	
 	    case PRODUTO_VETORIAL:
 	        prod_vet(x, y, z);
+	        preLog[8] = *(x+2);
+	        preLog[9] = *(y+2);
+	        preLog[10] = *(z+2);
 	        printf("Produto vetorial = (%f, %f, %f)\n", x[2], y[2], z[2]);
+	       	novaEntrada(11, preLog);
 	        break;
 	
 	    case PRODUTO_MISTO:
-	        printf("Produto misto = %f\n", prod_misto(x, y, z));
+	    	resultado = prod_misto(x, y, z);
+	    	preLog[11] = resultado;
+	        printf("Produto misto = %f\n", resultado);
+	        novaEntrada(12, preLog);
 	        break;
 
     }
@@ -263,28 +298,30 @@ void menuDistancias() {
 
 }
 
-int main() {
-
+int main(int argc, char *argv[]) {
+	
     while (1) {
-        /* Menu Primï¿½rio*/
+        /* Menu Prim?rio*/
         printf("1 - \t Produtos entre vetores\n"
                "2 - \t Distancias\n"
-               "3 - \t Sair do programa\n"
-               "4 - \t Mostrar log\n"
+               "3 - \t Mostrar log\n"
+               "Outro -  Sair do programa\n"
                "Digite o numero correspondente a opcao desejada: ");
         fflush(stdin);
         switch (getchar()-48) {
         	
 	        case PRODUTOS:
+	        	preLog[0] = PRODUTOS;
 	            menuProdutos();
 	            break;
 	
 	        case DISTANCIAS:
+	        	preLog[0] = DISTANCIAS;
 	            menuDistancias();
 	            break;
 	
 	        case MOSTRA_LOG:
-	            Show_Log();
+	            //Show_Log();
 	            break;
 	    }
 
@@ -299,7 +336,7 @@ int main() {
 
 
     }
-    /* Remover? vide sugestão*/
+    /* Remover? vide sugest?o*/
     fclose(fLog);
     return 0;
     

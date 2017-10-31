@@ -27,7 +27,7 @@
 #define DIST_RETA_PLANO 4
 #define DIST_PONTO_PLANO 5
 
-FILE *fp;
+FILE *fLog;
 
 typedef struct {
     float x[5], y[5], z[5];
@@ -48,7 +48,7 @@ int Create_Log() {
     if(fLog == NULL)
         return 0;
     else {
-        /* SUGESTÃO
+        /* SUGESTÃƒO
         fclose(fLog);
         */
         return 1; // Foi possivel criar
@@ -75,9 +75,9 @@ int New_Log_Entry(float *x, float *y, float *z, float resultado) {
     traw = time(NULL);
     a.timeraw = traw;
     
-    fseek(fp, 0, SEEK_END);
-    fwrite(&a, sizeof(a), 1, fp);
-    fflush(fp);
+    fseek(fLog, 0, SEEK_END);
+    fwrite(&a, sizeof(a), 1, fLog);
+    fflush(fLog);
     
     return 1;
 }
@@ -91,9 +91,9 @@ void Show_Log() {
 
     Create_Log();    
     LOG a;
-    fseek(fp, 0, SEEK_SET);  
+    fseek(fLog, 0, SEEK_SET);  
 	  
-    while(fread(&a, sizeof(a), 1, fp) == 1) {    	
+    while(fread(&a, sizeof(a), 1, fLog) == 1) {    	
         puts("---------------------");
         printf("%s", ctime(&a.timeraw));
         printf("Resultado: %f\n", a.result);        
@@ -116,7 +116,7 @@ void menuProdutos() {
     scanf(" %1d", &auxMenu);
 
     if (auxMenu >= PRODUTO_ESCALAR && auxMenu < PRODUTO_MISTO) {
-        /* Evita repetição de printf e scanf em cada case */
+        /* Evita repetiÃ§Ã£o de printf e scanf em cada case */
         x = calloc(2, sizeof(float));
         y = calloc(2, sizeof(float));
         z = calloc(2, sizeof(float));
@@ -266,7 +266,7 @@ void menuDistancias() {
 int main() {
 
     while (1) {
-        /* Menu Primï¿½rio*/
+        /* Menu PrimÃ¯Â¿Â½rio*/
         printf("1 - \t Produtos entre vetores\n"
                "2 - \t Distancias\n"
                "3 - \t Sair do programa\n"
@@ -299,8 +299,8 @@ int main() {
 
 
     }
-    /* Remover? vide sugestão*/
-    fclose(fp);
+    /* Remover? vide sugestÃ£o*/
+    fclose(fLog);
     return 0;
     
 }

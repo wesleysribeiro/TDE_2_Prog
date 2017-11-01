@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 #include "CalculusGA.h"
 
 /*NUMEROS DAS ESCOLHAS NOS MENUS*/
@@ -26,6 +27,8 @@
 #define DIST_DUAS_RETAS 3
 #define DIST_RETA_PLANO 4
 #define DIST_PONTO_PLANO 5
+
+//Para evitar alocação dinamica em lugares que não faz muita diferença
 #define MAGIA_NEGRA 32
 
 FILE *fLog;
@@ -37,36 +40,29 @@ FILE *fLog;
  */
 
 void clean_stdin(void) {
-
-    int c;
+	fflush(stdin);
+    /* UNCOMMENT IF LINUX
+	int c;
 
     do {
         c = getchar();
     } while (c != '\n' && c != EOF);
-
+	/**/
 }
 
 float preLog[MAGIA_NEGRA];
 
-int abreLog() {
+int novaEntrada(int argc, float *argv) {
 
-    fLog = fopen("historico.log", "w+t");
+    int i;
+
+    fLog = fopen("historico.log", "a+t");
 
     if(fLog == NULL)	/* NÃ£o foi possivel ler ou o arquivo nÃ£o existe */
         fLog = fopen("historico.log", "w+t");
 
     if(fLog == NULL)
         return 0; // NÃ£o foi possÃ­vel criar o arquivo
-    else
-        return 1; // Foi possivel criar
-}
-
-int novaEntrada(int argc, float *argv) {
-
-    int i;
-
-    if(!abreLog())
-        return 0;
 
     fprintf(fLog, "%ld;",time(NULL));
     fprintf(fLog, "%d;",argc);
@@ -75,10 +71,10 @@ int novaEntrada(int argc, float *argv) {
         fprintf(fLog, "%f;",*(argv+i));
         //printf(" LOG> %f \n",*(argv+i));
     }
-
-    printf("\n <LOG OK> \n");
-
+    fprintf(fLog, "\n");
     fflush(fLog);
+    fclose(fLog);
+    printf("\n <LOG OK> \n");
     return 1;
 
 }
@@ -88,17 +84,97 @@ int Remove_Log() {
 }
 /**/
 
-/*
-void Show_Log() {
-	abreLog();
-    LOG a;
-    fseek(fLog, 0, SEEK_SET);
-    while(fread(&a, sizeof(a), 1, fLog) == 1) {
-        puts("---------------------");
-        printf("%s", ctime(&a.timeraw));
-        printf("Operacao: %s\n", a.operation == 1? "Produto Escalar" : "Sei la viu");
-        printf("Resultado: %f\n", a.result);
-    }
+
+int mostraLog() {
+	
+	time_t logData;
+	int i, j, argc;
+	float aux1, aux2, *argv;
+	char legivel[MAGIA_NEGRA];
+	
+	fLog = fopen("historico.log", "rt");
+
+    if(fLog == NULL)	
+        return 0; 
+	
+    for(i = 0; 1; i++){
+    	
+		fscanf(fLog,"%ld;%d;%f;%f;", &logData, &argc, &aux1, &aux2);
+    	
+		/* Se chegar ao final do arquivo, saia do loop*/
+		if(feof(fLog))
+			break ;
+    	
+    	
+		strcpy(legivel, asctime(localtime(&logData)));
+		legivel[ strlen(legivel) - 1] = 0;
+		
+    	//printf("%s> ", asctime(localtime(&logData))); 
+		printf("Log #%d, %s\ns", i, legivel); 
+		
+		if ((int)aux1 == PRODUTOS){
+			
+			switch((int)aux2){
+				case PRODUTO_ESCALAR:
+					printf("Produto Escalar\n");
+					break;
+				
+				case PRODUTO_VETORIAL:
+					printf("Produto Vetorial\n");
+					break;
+				
+				case PRODUTO_MISTO:
+					printf("Produto Misto\n");
+					break;
+			}
+			
+		}
+		
+		if ((int)aux1 == DISTANCIAS){
+			
+			switch((int)aux2){
+				case DIST_DOIS_PONTOS:
+					printf("Distancia entre dois pontos\n");
+					break;
+				
+				case DIST_PONTO_RETA:
+					printf("Distancia entre ponto e reta\n");
+					break;
+				
+				case DIST_DUAS_RETAS:
+					printf("Distancia entre duas retas\n");
+					break;
+				
+				case DIST_RETA_PLANO:
+					printf("Distancia entre reta e plano\n");
+					break;
+				
+				case DIST_PONTO_PLANO:
+					printf("Distancia entre ponto e plano\n");
+					break;
+			}
+		
+		}
+		
+		printf("Entradas: ");
+					
+		argv = (float *)malloc((argc-2)*sizeof(float));	
+			 
+		for(j = 0; j < (argc-4); j++){
+			fscanf(fLog,"%f;", argv+j);
+			printf("%.2f, ",*(argv+j));
+		} 
+		
+		fscanf(fLog,"%f;", argv+j);
+		printf("%.2f\n",*(argv+j));
+		j++;
+		
+		fscanf(fLog,"%f;", argv+j);
+		printf("Resultado = %.2f\n\n",*(argv+j)); 
+	}
+    
+	fclose(fLog);
+    return 1;
 }
 /**/
 void menuProdutos() {
@@ -113,7 +189,7 @@ void menuProdutos() {
            "Outro -  Retonar ao menu principal\n"
            "Digite o numero correspondente a opcao desejada: ");
 
-    scanf(" %1d\n", &auxMenu);
+    scanf(" %1d", &auxMenu);
 
     preLog[1] = auxMenu;
 
@@ -228,6 +304,8 @@ void menuDistancias() {
         break;
 
     case DIST_PONTO_RETA:
+    	preLog[1] = DIST_PONTO_RETA;
+
         printf("Informe as coordenadas (x, y, z) do vetor diretor: ");
         scanf("%f%f%f", &x[0], &y[0], &z[0]);
         preLog[2] = *x;
@@ -255,6 +333,8 @@ void menuDistancias() {
         break;
 
     case DIST_DUAS_RETAS:
+    	preLog[1] = DIST_DUAS_RETAS;
+    	
         printf("Informe as coordenadas (x, y, z) do vetor diretor da reta r: ");
         scanf("%f%f%f", &x[0], &y[0], &z[0]);
         preLog[2] = *x;
@@ -310,6 +390,8 @@ void menuDistancias() {
         break;
 
     case DIST_RETA_PLANO:
+    	preLog[1] = DIST_RETA_PLANO;
+    	
         printf("Digite as coordenadas (x, y, z) do vetor diretor do plano e o termo 'd': ");
         scanf("%f%f%f%f", &x[0], &y[0], &z[0], &d);
         preLog[2] = *x;
@@ -331,7 +413,9 @@ void menuDistancias() {
         break;
 
     case DIST_PONTO_PLANO:
-        printf("Digite as coordenadas (x, y, z) do vetor diretor do plano e o termo 'd': ");
+        preLog[1] = DIST_PONTO_PLANO;
+    	
+		printf("Digite as coordenadas (x, y, z) do vetor diretor do plano e o termo 'd': ");
         scanf("%f%f%f%f", &x[0], &y[0], &z[0], &d);
         preLog[2] = *x;
         preLog[3] = *y;
@@ -379,7 +463,7 @@ int main(int argc, char *argv[]) {
             break;
 
         case MOSTRA_LOG:
-            //Show_Log();
+            mostraLog();
             break;
         }
 
@@ -394,8 +478,7 @@ int main(int argc, char *argv[]) {
 
 
     }
-    /* Remover? vide sugest?o*/
-    fclose(fLog);
+
     return 0;
 
 }

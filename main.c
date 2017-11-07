@@ -29,7 +29,8 @@
 #define DIST_RETA_PLANO 4
 #define DIST_PONTO_PLANO 5
 
-//Para evitar alocação dinamica em lugares que não faz muita diferença
+//Para evitar alocaÃ§Ã£o dinamica em lugares que nÃ£o faz muita diferenÃ§a
+
 #define MAGIA_NEGRA 32
 
 FILE *fLog;
@@ -42,13 +43,15 @@ FILE *fLog;
 
 void clean_stdin(void) {
     fflush(stdin);
-    /* 
+    /* UNCOMMENT IF LINUX
+
     int c;
 
     do {
         c = getchar();
     } while (c != '\n' && c != EOF);
-    */
+    /**/
+
 }
 
 float preLog[MAGIA_NEGRA];
@@ -59,11 +62,11 @@ int novaEntrada(int argc, float *argv) {
 
     fLog = fopen("historico.log", "a+t");
 
-    if(fLog == NULL)	/* NÃ£o foi possivel ler ou o arquivo nÃ£o existe */
+    if(fLog == NULL)	/* NÃÂ£o foi possivel ler ou o arquivo nÃÂ£o existe */
         fLog = fopen("historico.log", "w+t"); //Linha desnecessaria pois o modo a+t cria o arquivo se ele nao existir
 
     if(fLog == NULL)
-        return 0; // NÃ£o foi possÃ­vel criar o arquivo
+        return 0; // NÃÂ£o foi possÃÂ­vel criar o arquivo
 
     fprintf(fLog, "%ld;",time(NULL));
     fprintf(fLog, "%d;",argc);
@@ -88,9 +91,7 @@ int Remove_Log() {
     
     if((rename("historico.log", "historico.log.old") != 0) || fLog == NULL)
         return 0;
-
     /* Se foi possivel ler e renomear */
-
     else
         return 1; 
 }
@@ -403,7 +404,9 @@ void menuDistancias() {
         preLog[1] = DIST_RETA_PLANO;
 
         printf("Digite as coordenadas (x, y, z) do vetor diretor do plano e o termo 'd': ");
-        scanf("%f%f%f%f", &x[0], &y[0], &z[0], d);
+
+        scanf("%f%f%f%f", &x[0], &y[0], &z[0], &d);
+
         preLog[2] = *x;
         preLog[3] = *y;
         preLog[4] = *z;
@@ -426,7 +429,9 @@ void menuDistancias() {
         preLog[1] = DIST_PONTO_PLANO;
 
         printf("Digite as coordenadas (x, y, z) do vetor diretor do plano e o termo 'd': ");
-        scanf("%f%f%f%f", &x[0], &y[0], &z[0], d);
+
+        scanf("%f%f%f%f", &x[0], &y[0], &z[0], &d);
+
         preLog[2] = *x;
         preLog[3] = *y;
         preLog[4] = *z;
@@ -465,7 +470,6 @@ int main(int argc, char *argv[]) {
          * estava bugando a primeira execucao
          * pedindo 2x entrada do usuario
          */
-
         switch (getchar()-48) {
 
         case PRODUTOS:

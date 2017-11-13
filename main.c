@@ -86,11 +86,16 @@ int novaEntrada(int argc, float *argv) {
 int Remove_Log() { 
 	char ch;
 	FILE *fLogOld;
+	
     if((fLog = fopen("historico.log", "r+t")) == NULL || (fLogOld = fopen("historico.log.old", "a+t")) == NULL)
+	    
     	return 0;
+	
     else
     	while((ch = fgetc(fLog)) != EOF)
     		fputc(ch, fLogOld);
+	
+	remove(fLog);
 	fclose(fLog);
 	fclose(fLogOld);
     return 1;
